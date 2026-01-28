@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FareMap - Interactive London transport fare analyzer using DuckDB-WASM and MapLibre GL. Visualize tube, DLR, and rail fares across London.">
+  <meta name="theme-color" content="#0a0a0f">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="FareMap - London Commute Analyzer">
+  <meta property="og:description" content="Serverless fare visualization powered by DuckDB-WASM">
+  <meta property="og:type" content="website">
+  
+  <title>FareMap | London Commute Analyzer</title>
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+  
+  <!-- MapLibre CSS -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+  
+  <!-- App Styles -->
+  <script type="module" crossorigin src="./assets/index-D_XY68iR.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/maplibre-BbqsL0sN.js">
+  <link rel="modulepreload" crossorigin href="./assets/duckdb-CXkSyTZP.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-B_8ZXVFn.css">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <span class="logo-fare">Fare</span><span class="logo-map">Map</span>
+      </div>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+      <p class="loading-text">Initializing DuckDB-WASM...</p>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="app" class="app hidden">
+    <!-- Sidebar Panel -->
+    <aside id="sidebar" class="sidebar">
+      <header class="sidebar-header">
+        <h1 class="logo">
+          <span class="logo-fare">Fare</span><span class="logo-map">Map</span>
+        </h1>
+        <p class="tagline">London Commute Analyzer</p>
+      </header>
+
+      <!-- Origin Selection -->
+      <section class="panel origin-panel">
+        <div class="panel-header">
+          <span class="panel-icon">📍</span>
+          <h2>Origin Station</h2>
+          <button id="clear-origin-btn" class="icon-btn hidden" aria-label="Clear Origin">✕</button>
+        </div>
+        <div id="origin-info" class="station-info">
+          <p class="hint">Click a station on the map</p>
+        </div>
+      </section>
+
+      <!-- Destination Info -->
+      <section id="destination-panel" class="panel destination-panel hidden">
+        <div class="panel-header">
+          <span class="panel-icon">🏁</span>
+          <h2>Destination Station</h2>
+        </div>
+        <div id="destination-info" class="station-info"></div>
+      </section>
+
+      <!-- Routes List -->
+      <section id="routes-panel" class="panel routes-panel hidden">
+        <div class="panel-header">
+          <span class="panel-icon">🚇</span>
+          <h2>Route Options</h2>
+        </div>
+        <ul id="route-list" class="route-list"></ul>
+      </section>
+
+      <!-- Filters -->
+      <section class="panel filters-panel">
+        <div class="panel-header">
+          <span class="panel-icon">⚙️</span>
+          <h2>Filters</h2>
+        </div>
+        
+        <div class="filter-group">
+          <label for="fare-slider">Max Fare: <span id="fare-value">£10.00</span></label>
+          <input type="range" id="fare-slider" min="0" max="1500" value="1000" step="10">
+        </div>
+
+        <div class="filter-group">
+          <label>Sort By:</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" data-sort="cheapest">Cheapest</button>
+            <button class="toggle-btn active" data-sort="default">Default</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Time:</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-time="offpeak">Off-Peak</button>
+            <button class="toggle-btn" data-time="peak">Peak</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Footer -->
+      <footer class="sidebar-footer">
+        <div class="stats">
+          <div class="stat">
+            <span id="station-count">0</span>
+            <small>Stations</small>
+          </div>
+          <div class="stat">
+            <span id="fare-count">0</span>
+            <small>Fare Pairs</small>
+          </div>
+        </div>
+        <p class="tech-stack">
+          <span class="tech-badge">DuckDB-WASM</span>
+          <span class="tech-badge">MapLibre GL</span>
+        </p>
+      </footer>
+    </aside>
+
+    <!-- Map Container -->
+    <main id="map-container" class="map-container">
+      <div id="map" class="map"></div>
+      
+      <!-- Tooltip -->
+      <div id="tooltip" class="tooltip hidden">
+        <div class="tooltip-header">
+          <span class="tooltip-name"></span>
+        </div>
+        <div class="tooltip-sub">
+          <span class="tooltip-zone"></span>
+          <span class="tooltip-lines"></span>
+        </div>
+        <div class="tooltip-fares">
+          <div class="tooltip-fare cheapest">
+            <span class="fare-label">Cheapest</span>
+            <span class="fare-value"></span>
+          </div>
+          <div class="tooltip-fare default">
+            <span class="fare-label">Default</span>
+            <span class="fare-value"></span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+</body>
+</html>
